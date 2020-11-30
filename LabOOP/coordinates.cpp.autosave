@@ -1,0 +1,6 @@
+#include "Coordinates.h"
+
+coordinates::coordinates()
+{
+
+}

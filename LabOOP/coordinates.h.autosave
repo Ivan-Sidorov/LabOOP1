@@ -1,0 +1,14 @@
+class Motion {
+private:
+    double new_velocity;
+    double time;
+public:
+    Motion();
+    Motion(const Motion &motion);
+    Motion(double n_v, double t);
+    void set_new_velocity();
+    void set_time();
+    const double& get_new_velocity() const;
+    const double& get_time() const;
+    
+};

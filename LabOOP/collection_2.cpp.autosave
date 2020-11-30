@@ -1,0 +1,226 @@
+#include "collection_2.h"
+#include <iostream>
+#include "motion.h"
+#include <float.h>
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+motion &collection::get(int pos) {
+    if(emp() == false) {
+        auto cur = first;
+        for(auto i = 1; i < pos && cur; i++, cur = cur->next);
+        if( cur )
+            return cur->obj;
+        cout<<"Not enough elements\n";
+        return first->obj;
+    } 
+    else 
+        printf("Stack empty.\n");
+}
+
+void collection::add(const motion &d) {
+    push(d);
+}
+
+void collection::push(const motion &d) {
+    auto cur = new list_element;
+    cur->obj = d;
+
+    cur->next = first;
+    first = cur;
+}
+
+void collection::pop() {
+    if(first != NULL) {
+        auto cur = first;
+        first = cur->next;
+        delete cur;
+    }
+    else
+        printf("Stack empty.\n");
+}
+
+void collection::del(int pos) {
+    auto cur = first->next, cur1 = first;
+    if (pos == 1) {
+        first = cur;
+        delete cur1;
+    } 
+    else {
+        for(auto i = 2; i < pos && cur; i++) {
+        cur = cur->next;
+        cur1 = cur1->next;
+        }
+        if(cur) {
+        cur1->next = cur->next;
+        delete cur;
+        }
+    }
+}
+
+void collection::clear_all() {
+    while(!emp()) {
+        pop();
+    }
+}
+
+int collection::get_count() const {
+    int count = 0;
+    auto cur = first;
+
+    while(cur){
+        count += 1;
+        cur = cur->next;
+
+    }
+    return count;
+}
+
+collection::collection() {
+    first = NULL;
+    iter = NULL;
+
+}
+
+collection::list_element collection::get_first() const{
+    return *first;
+}
+
+collection::collection(const collection &d) {
+    list_element cur_c = d.get_first();
+    list_element* cur_c_n = cur_c.next;
+    list_element* cur_1;
+    list_element * cur_2;
+    cur_1 = new list_element;
+    first = cur_1;
+    cur_1->obj = cur_c.obj;
+    while(cur_c_n) {
+        cur_2 = new list_element;
+        cur_2->obj = cur_c_n->obj;
+        cur_1->next = cur_2;
+        cur_1 = cur_2;
+        cur_c_n = cur_c_n->next;
+    }
+}
+
+collection::~collection() {
+    while(!emp()) {
+        pop();
+    }
+}
+
+bool collection::emp() const {
+    if (first == NULL)
+        return true;
+    else
+        return false;
+
+}
+
+motion collection::get_head() const {
+    if(!emp())
+        return top();
+    else
+        printf("%s", "Stack empty.\n");
+}
+
+motion collection::get_head_del(){
+    if(!emp()) {
+        motion a = top();
+        pop();
+        return a;
+    }
+    else
+        printf("%s", "Stack empty.\n");
+}
+
+motion collection::top() const {
+    return first->obj;
+}
+
+bool collection::calctestfirst() const {
+    return emp();
+}
+
+void collection::iter_begin() {
+    iter = first;
+}
+
+void collection::iter_end() {
+    auto cur = first;
+    while(cur->next)
+        cur = cur->next;
+    iter = cur;
+}
+
+motion* collection::cur() const {
+    return &iter->obj;
+}
+
+void collection::next(){
+    if(iter)
+        iter = iter->next;
+}
+
+void collection::prev() {
+    auto cur = first;
+    while(cur->next != iter)
+        cur = cur->next;
+    iter = cur;
+}
+
+bool collection::eq(motion num) const {
+    bool v = iter->obj.get_new_velocity() == num.get_new_velocity();
+    bool t = iter->obj.get_time() == num.get_time();
+
+    iter->obj.print_params();
+    if ( v && t)
+        return true;
+    else
+        return false;
+}
+
+bool collection::ne(motion num) const {
+    return !eq(num);
+}
+
+void collection::write_data(const char *path) const {
+    if(!emp()) {
+        std::ofstream file;
+        file.open(path);
+        file << get_count() << std::endl;
+        list_element* prev = NULL;
+        list_element* cur = first;
+        while(prev != first){
+            while(cur->next != prev)
+                cur = cur->next;
+            file << (cur->obj).get_new_velocity() << ':' << (cur->obj).get_time() << ':' << std::endl;
+            prev = cur;
+            cur = first;
+        }
+        file.close();
+    }
+};
+
+void collection::read_data(const char *path) {
+    std::ifstream file;
+    file.open(path);
+    motion* cur;
+    clear_all();
+    double v, t = 0;
+    char space;
+    int cnt;
+    file >> cnt;
+    while(cnt){
+        cur = new motion;
+        file>> v >> space >> t;
+        printf("%f, %f\n", v, t);
+        cur->set_new_velocity(v);
+        cur->set_time(t);;
+        push(*cur);
+        cnt--;
+    }
+    file.close();
+}
